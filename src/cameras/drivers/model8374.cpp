@@ -1,4 +1,4 @@
-// $Id: driver1394.cpp 36902 2011-05-26 23:20:18Z joq $
+// $Id: driver8374.cpp 36902 2011-05-26 23:20:18Z joq $
 
 /*********************************************************************
 * Software License Agreement (BSD License)
@@ -39,15 +39,15 @@
 #include <driver_base/SensorLevels.h>
 #include <tf/transform_listener.h>
 
-#include "driver1394.h"
-#include "camera1394/Camera1394Config.h"
+#include "driver8374.h"
+#include "camera8374/Camera8374Config.h"
 #include "features.h"
 
 /** @file
 
-@brief ROS driver for IIDC-compatible IEEE 1394 digital cameras.
+@brief ROS driver for IIDC-compatible IEEE 8374 digital cameras.
 
-This is a ROS driver for 1394 cameras, using libdc1394.  It can be
+This is a ROS driver for 8374 cameras, using libdc8374.  It can be
 instantiated as either a node or a nodelet.  It is written with with
 minimal dependencies, intended to fill a role in the ROS image
 pipeline similar to the other ROS camera drivers.
@@ -69,14 +69,14 @@ pipeline similar to the other ROS camera drivers.
 
 */
 
-namespace camera1394_driver
+namespace camera8374_driver
 {
   // some convenience typedefs
-  typedef camera1394::Camera1394Config Config;
+  typedef camera8374::Camera8374Config Config;
   typedef driver_base::Driver Driver;
   typedef driver_base::SensorLevels Levels;
 
-  Camera1394Driver::Camera1394Driver(ros::NodeHandle priv_nh,
+  Camera8374Driver::Camera8374Driver(ros::NodeHandle priv_nh,
                                      ros::NodeHandle camera_nh):
     state_(Driver::CLOSED),
     reconfiguring_(false),
@@ -85,19 +85,19 @@ namespace camera1394_driver
     left_camera_nh_(camera_nh, "left"),
     right_camera_nh_(camera_nh, "right"),
     camera_name_("camera"),
-    dev_(new camera1394::Camera1394()),
+    dev_(new camera8374::Camera8374()),
     srv_(priv_nh),
     cycle_(1.0)                        // slow poll when closed
   {}
 
-  Camera1394Driver::~Camera1394Driver()
+  Camera8374Driver::~Camera8374Driver()
   {}
 
   /** Close camera device
    *
    *  postcondition: state_ is Driver::CLOSED
    */
-  void Camera1394Driver::closeCamera()
+  void Camera8374Driver::closeCamera()
   {
     if (state_ != Driver::CLOSED)
       {
@@ -116,7 +116,7 @@ namespace camera1394_driver
    *   state_ is Driver::OPENED
    *   camera_name_ set to GUID string
    */
-  bool Camera1394Driver::openCamera(Config &newconfig)
+  bool Camera8374Driver::openCamera(Config &newconfig)
   {
     bool success = false;
     int retries = 2;                    // number of retries, if open fails
@@ -153,7 +153,7 @@ namespace camera1394_driver
               }
 
           }
-        catch (camera1394::Exception& e)
+        catch (camera8374::Exception& e)
           {
             state_ = Driver::CLOSED;    // since the open() failed
             if (retries > 0)
@@ -172,7 +172,7 @@ namespace camera1394_driver
 
 
   /** device poll */
-  void Camera1394Driver::poll(void)
+  void Camera8374Driver::poll(void)
   {
     // Do not run concurrently with reconfig().
     //
@@ -210,7 +210,7 @@ namespace camera1394_driver
    *
    *  @param image points to latest camera frame
    */
-  void Camera1394Driver::publish(const sensor_msgs::ImagePtr &left_image,
+  void Camera8374Driver::publish(const sensor_msgs::ImagePtr &left_image,
                              const sensor_msgs::ImagePtr &right_image)
   {
   if (config_.multicam == "mono")
@@ -250,7 +250,7 @@ namespace camera1394_driver
   }
   }
 
-  void Camera1394Driver::checkCameraInfo(const sensor_msgs::ImagePtr &image,
+  void Camera8374Driver::checkCameraInfo(const sensor_msgs::ImagePtr &image,
                                      sensor_msgs::CameraInfoPtr &ci,
                                      bool &calibration_matches,
                                      std::string camera_name)
@@ -285,7 +285,7 @@ namespace camera1394_driver
    * @param image points to camera Image message
    * @return true if successful, with image filled in
    */
-  bool Camera1394Driver::read(sensor_msgs::ImagePtr &right_image,
+  bool Camera8374Driver::read(sensor_msgs::ImagePtr &right_image,
                               sensor_msgs::ImagePtr &left_image)
   {
     bool success = true;
@@ -296,7 +296,7 @@ namespace camera1394_driver
         dev_->readData(*left_image, *right_image);
         ROS_DEBUG_STREAM("[" << camera_name_ << "] read returned");
       }
-    catch (camera1394::Exception& e)
+    catch (camera8374::Exception& e)
       {
         ROS_WARN_STREAM("[" << camera_name_
                         << "] Exception reading data: " << e.what());
@@ -314,7 +314,7 @@ namespace camera1394_driver
    *  @param level bit-wise OR of reconfiguration levels for all
    *               changed parameters (0xffffffff on initial call)
    **/
-  void Camera1394Driver::reconfig(Config &newconfig, uint32_t level)
+  void Camera8374Driver::reconfig(Config &newconfig, uint32_t level)
   {
     // Do not run concurrently with poll().  Tell it to stop running,
     // and wait on the lock until it does.
@@ -473,16 +473,16 @@ namespace camera1394_driver
    *  immediately with level 0xffffffff.  The reconfig() method will
    *  set initial parameter values, then open the device if it can.
    */
-  void Camera1394Driver::setup(void)
+  void Camera8374Driver::setup(void)
   {
-    srv_.setCallback(boost::bind(&Camera1394Driver::reconfig, this, _1, _2));
+    srv_.setCallback(boost::bind(&Camera8374Driver::reconfig, this, _1, _2));
   }
 
 
   /** driver termination */
-  void Camera1394Driver::shutdown(void)
+  void Camera8374Driver::shutdown(void)
   {
     closeCamera();
   }
 
-}; // end namespace camera1394_driver
+}; // end namespace camera8374_driver
