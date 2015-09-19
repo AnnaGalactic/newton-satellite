@@ -75,6 +75,10 @@ namespace Modes
       "1600x1200_mono8",
       "1280x960_mono16",
       "1600x1200_mono16",
+      "2048x1536_rgb8"
+      "2048x1536_yuv422"
+      "2048x1536_mono8"
+      "2048x1536_mono16"
       "exif",
       "format7_mode0",
       "format7_mode1",
