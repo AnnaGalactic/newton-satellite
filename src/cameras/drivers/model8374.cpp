@@ -289,11 +289,31 @@ namespace camera8374_driver
                               sensor_msgs::ImagePtr &left_image)
   {
     bool success = true;
+    sensor_msgs::ImagePtr temp_right_image();
+    sensor_msgs::ImagePtr temp_left_image();
+
     try
       {
         // Read data from the Camera
         ROS_DEBUG_STREAM("[" << camera_name_ << "] reading data");
-        dev_->readData(*left_image, *right_image);
+        dev_->readData(temp_left_image, temp_right_image);
+        composite_data(temp_left_image, *left_image, temp_right_image, *right_image);
+
+        dev_->shiftCCD(RIGHT, 1);
+        dev_->readData(temp_left_image, temp_right_image);
+        composite_data(temp_left_image, *left_image, temp_right_image, *right_image);
+
+        dev_->shiftCCD(DOWN, 1);
+        dev_->readData(temp_left_image, temp_right_image);
+        composite_data(temp_left_image, *left_image, temp_right_image, *right_image);
+
+        dev_->shiftCCD(LEFT, 1);
+        dev_->readData(temp_left_image, temp_right_image);
+        composite_data(temp_left_image, *left_image, temp_right_image, *right_image);
+
+        // Return to the initial position
+        dev_->shiftCCD(UP, 1);
+
         ROS_DEBUG_STREAM("[" << camera_name_ << "] read returned");
       }
     catch (camera8374::Exception& e)
